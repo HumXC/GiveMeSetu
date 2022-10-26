@@ -1,2 +1,3 @@
-# GiveMeSetu
+# give-me-setu
+
 setu serber

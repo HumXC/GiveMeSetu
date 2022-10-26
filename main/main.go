@@ -11,18 +11,30 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
-	"give-me-setu/main/storage"
+	"give-me-setu/main/conf"
 	"give-me-setu/util"
+	"os"
+	"path"
 )
 
-var imgLib string = "../data/img"
+var DataDir string
 
 func init() {
-	util.InitDir(imgLib)
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		DataDir = os.Args[1]
+	} else {
+		dir, err := os.Executable()
+		if err != nil {
+			panic(err)
+		}
+		DataDir = path.Join(path.Dir(dir), "data")
+	}
 
+	util.InitDir(DataDir)
+	c := conf.GetConfig(path.Join(DataDir, "config.yaml"))
+	fmt.Println(c)
 }
 func main() {
-	lib := storage.NewImgLib(imgLib)
-	fmt.Println(lib)
 }

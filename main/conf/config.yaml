@@ -1,0 +1,11 @@
+# 根图库的位置，默认使用 data/library 文件夹
+library: ""
+database:
+    # 使用的数据库，可选 sqlite/mysql
+    driver: sqlite
+    # 数据库的名称 CREATE　DATABASE {name}
+    name: GiveMeSetu
+    # 如果使用 sqlite 则不需要配置以下 3 项
+    host: host:port
+    user: root
+    password: password

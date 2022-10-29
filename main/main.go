@@ -38,10 +38,8 @@ func init() {
 	Cfg.DataDir = dataDir
 	Cfg.Library = path.Join(dataDir, "library")
 
-	db := database.Get(Cfg)
-	database.InitDB(db)
-	db.Close()
+	_ = database.Get(Cfg)
+
 }
 func main() {
-
 }

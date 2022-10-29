@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-27
+ * @LastEditTime: 2022-10-29
  * @FilePath: /give-me-setu/main/storage/imgLib.go
  * @Description: 图库
  *
@@ -22,12 +22,12 @@ type ImgLib struct {
 	ParentLib *ImgLib            // 上一级文件夹 (库)
 	SubLib    map[string]*ImgLib // 子文件夹 (库)
 	Dir       string             // 库所在的位置（父目录）
-	Name      string             // 库相对与根库的路径
-	Items     []string           // 所包含的媒体
+	Name      string             // 库相对于根库的路径
+	Setus     []string           // 所包含的媒体
 }
 
 func (i *ImgLib) Add(name string) {
-	i.Items = append(i.Items, name)
+	i.Setus = append(i.Setus, name)
 }
 func Get(rootLibDir string) *ImgLib {
 	return newLib(path.Dir(rootLibDir), path.Base(rootLibDir))
@@ -42,7 +42,7 @@ func newLib(dir string, name string) *ImgLib {
 	fullName := path.Join(dir, name)
 	entrys, err := os.ReadDir(fullName)
 	if err != nil {
-		log.Panicf("Can not create ImgLib: %v", err)
+		log.Fatalf("Can not create ImgLib: %v", err)
 	}
 	for _, f := range entrys {
 		n := f.Name()
@@ -53,7 +53,7 @@ func newLib(dir string, name string) *ImgLib {
 		} else {
 			t := mime.TypeByExtension(path.Ext(fullName))
 			if strings.Contains(t, "image/") {
-				lib.Items = append(lib.Items, n)
+				lib.Setus = append(lib.Setus, n)
 			}
 		}
 	}

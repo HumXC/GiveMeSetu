@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-26
+ * @LastEditTime: 2022-10-27
  * @FilePath: /give-me-setu/util/util.go
  * @Description: 定义一些常用的无处安放的函数
  *
@@ -10,19 +10,28 @@
  */
 package util
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"strings"
+)
+
+func Replace(str string, target string, args ...any) string {
+	str = strings.Replace(str, target, "%s", len(args))
+	return fmt.Sprintf(str, args...)
+}
 
 /**
  * @description: 判断文件是否存在
  * @param {string} path
  * @return {*}
  */
-func IsExit(path string) bool {
+func IsExist(path string) bool {
 	_, err := os.Stat(path)
-	if os.IsExist(err) {
-		return true
-	} else {
+	if os.IsNotExist(err) {
 		return false
+	} else {
+		return true
 	}
 
 }
@@ -33,7 +42,7 @@ func IsExit(path string) bool {
  * @return {bool}
  */
 func InitDir(path string) {
-	if IsExit(path) {
+	if IsExist(path) {
 		os.MkdirAll(path, 0755)
 	}
 }

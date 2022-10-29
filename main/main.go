@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-26
+ * @LastEditTime: 2022-10-29
  * @FilePath: /give-me-setu/main/main.go
  * @Description: main
  *
@@ -11,30 +11,37 @@
 package main
 
 import (
-	_ "embed"
-	"fmt"
 	"give-me-setu/main/conf"
+	"give-me-setu/main/database"
 	"give-me-setu/util"
 	"os"
 	"path"
 )
 
-var DataDir string
+var Cfg conf.Config
 
 func init() {
+	dataDir := ""
 	if len(os.Args) > 1 && os.Args[1] != "" {
-		DataDir = os.Args[1]
+		dataDir = os.Args[1]
+	} else if os.Getenv("DATADIR") != "" {
+		dataDir = os.Getenv("DATADIR")
 	} else {
 		dir, err := os.Executable()
 		if err != nil {
 			panic(err)
 		}
-		DataDir = path.Join(path.Dir(dir), "data")
+		dataDir = path.Join(path.Dir(dir), "data")
 	}
+	util.InitDir(dataDir)
+	Cfg = *conf.Get(path.Join(dataDir, "config.yaml"))
+	Cfg.DataDir = dataDir
+	Cfg.Library = path.Join(dataDir, "library")
 
-	util.InitDir(DataDir)
-	c := conf.GetConfig(path.Join(DataDir, "config.yaml"))
-	fmt.Println(c)
+	db := database.Get(Cfg)
+	database.InitDB(db)
+	db.Close()
 }
 func main() {
+
 }

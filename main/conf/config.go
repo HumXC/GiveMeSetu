@@ -2,26 +2,23 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-26
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-26
+ * @LastEditTime: 2022-10-29
  * @FilePath: /give-me-setu/main/conf/config.go
- * @Description: 从环境变量和文件获取配置
+ * @Description: 从文件获取配置
  *
  * Copyright (c) 2022 by HumXC Hum-XC@outlook.com, All Rights Reserved.
  */
 package conf
 
 import (
-	_ "embed"
 	"give-me-setu/util"
 	"os"
 
 	"gopkg.in/yaml.v2"
 )
 
-//go:embed config.yaml
-var configFile []byte
-
 type Config struct {
+	DataDir  string
 	Library  string   `yaml:"library"`
 	Database Database `yaml:"database"`
 }
@@ -34,24 +31,24 @@ type Database struct {
 	Password string `yaml:"password"`
 }
 
-func GetConfig(path string) *Config {
-	var c Config
+func Get(path string) *Config {
+	c := Config{
+		Database: Database{
+			Driver: "sqlite",
+			Name:   "GiveMeSetu",
+		},
+	}
 
-	if util.IsExit(path) {
+	if util.IsExist(path) {
 		file, err := os.ReadFile(path)
 		if err != nil {
 			panic(err)
 		}
-		configFile = file
-	} else {
-		err := os.WriteFile(path, configFile, 0775)
+		err = yaml.Unmarshal(file, &c)
 		if err != nil {
 			panic(err)
 		}
 	}
-	err := yaml.Unmarshal(configFile, &c)
-	if err != nil {
-		panic(err)
-	}
+
 	return &c
 }

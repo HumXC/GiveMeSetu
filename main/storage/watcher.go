@@ -34,7 +34,7 @@ type LibWatcher struct {
 }
 
 func (w *LibWatcher) Watch() {
-	err := w.watcher.Watch(w.Library.Path)
+	err := w.watcher.Watch(w.Library.Dir)
 	if err != nil {
 		panic("The watcher failed to start watch: " + err.Error())
 	}

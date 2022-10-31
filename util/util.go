@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-29
+ * @LastEditTime: 2022-10-31
  * @FilePath: /give-me-setu/util/util.go
  * @Description: 定义一些常用的无处安放的函数
  *
@@ -40,7 +40,7 @@ func IsExist(path string) bool {
 
 // 如果文件夹不存在则创建
 func InitDir(path string) {
-	if IsExist(path) {
+	if !IsExist(path) {
 		os.MkdirAll(path, 0755)
 	}
 }

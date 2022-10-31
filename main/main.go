@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-29
+ * @LastEditTime: 2022-10-31
  * @FilePath: /give-me-setu/main/main.go
  * @Description: main
  *
@@ -13,6 +13,7 @@ package main
 import (
 	"give-me-setu/main/conf"
 	"give-me-setu/main/database"
+	"give-me-setu/main/network"
 	"give-me-setu/util"
 	"os"
 	"path"
@@ -37,9 +38,12 @@ func init() {
 	Cfg = *conf.Get(path.Join(dataDir, "config.yaml"))
 	Cfg.DataDir = dataDir
 	Cfg.Library = path.Join(dataDir, "library")
-
+	util.InitDir(Cfg.Library)
 	_ = database.Get(Cfg)
 
 }
 func main() {
+
+	network.NewServer(Cfg.Library).Run("12345")
+
 }

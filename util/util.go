@@ -12,7 +12,9 @@ package util
 
 import (
 	"fmt"
+	"mime"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -43,4 +45,11 @@ func InitDir(path string) {
 	if !IsExist(path) {
 		os.MkdirAll(path, 0755)
 	}
+}
+
+// 判断文件名是否为指定类型
+// IsMIMEType("saada.png","image")
+func IsMIMEType(name, MIMEtype string) bool {
+	t := mime.TypeByExtension(path.Ext(name))
+	return IsStartWith(t, MIMEtype+"/")
 }

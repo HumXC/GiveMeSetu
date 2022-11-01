@@ -1,13 +1,3 @@
-/*
- * @Author: HumXC Hum-XC@outlook.com
- * @Date: 2022-10-27
- * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-29
- * @FilePath: /give-me-setu/main/database/sql.go
- * @Description: 初始化数据库
- *
- * Copyright (c) 2022 by HumXC Hum-XC@outlook.com, All Rights Reserved.
- */
 package database
 
 import (

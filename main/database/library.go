@@ -1,13 +1,3 @@
-/*
- * @Author: HumXC Hum-XC@outlook.com
- * @Date: 2022-10-29
- * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-29
- * @FilePath: /give-me-setu/main/database/library.go
- * @Description: 对 图库 的定义
- *
- * Copyright (c) 2022 by HumXC Hum-XC@outlook.com, All Rights Reserved.
- */
 package database
 
 import "database/sql"

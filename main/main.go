@@ -1,13 +1,3 @@
-/*
- * @Author: HumXC Hum-XC@outlook.com
- * @Date: 2022-10-25
- * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-11-01
- * @FilePath: /give-me-setu/main/main.go
- * @Description: main
- *
- * Copyright (c) 2022 by HumXC Hum-XC@outlook.com, All Rights Reserved.
- */
 package main
 
 import (

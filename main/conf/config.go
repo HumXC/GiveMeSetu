@@ -1,13 +1,3 @@
-/*
- * @Author: HumXC Hum-XC@outlook.com
- * @Date: 2022-10-26
- * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-29
- * @FilePath: /give-me-setu/main/conf/config.go
- * @Description: 从文件获取配置
- *
- * Copyright (c) 2022 by HumXC Hum-XC@outlook.com, All Rights Reserved.
- */
 package conf
 
 import (

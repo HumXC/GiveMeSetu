@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-31
+ * @LastEditTime: 2022-11-01
  * @FilePath: /give-me-setu/main/storage/imgLib.go
  * @Description: 图库
  *
@@ -11,7 +11,6 @@
 package storage
 
 import (
-	"errors"
 	"give-me-setu/util"
 	"io"
 	"log"
@@ -28,12 +27,18 @@ type ImgLib struct {
 	Setus     map[string]any     // 所包含的媒体
 }
 
-func (i *ImgLib) Add(file io.Reader, name string) error {
+// 添加图片到库
+func (i *ImgLib) Add(srcName string, name string) error {
 	f, err := os.Create(path.Join(i.Dir, name))
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(f, file)
+	src, err := os.Open(srcName)
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+	_, err = io.Copy(f, src)
 	if err != nil {
 		return err
 	}
@@ -41,8 +46,8 @@ func (i *ImgLib) Add(file io.Reader, name string) error {
 	return nil
 }
 
-// 返回指定路径的 lib
-func (i *ImgLib) Go(libName string) (*ImgLib, error) {
+// 返回指定路径的 lib，第二个返回值是无法进入的路径
+func (i *ImgLib) Go(libName string) (*ImgLib, []string) {
 	names := make([]string, 0)
 	for _, v := range strings.Split(libName, "/") {
 		if v != "" {
@@ -50,11 +55,12 @@ func (i *ImgLib) Go(libName string) (*ImgLib, error) {
 		}
 	}
 	var lib *ImgLib = i
-	for _, name := range names {
+	for index, name := range names {
 		if v, ok := i.SubLib[name]; ok {
 			lib = v
 		} else {
-			return nil, errors.New("Can not found library: " + name)
+
+			return lib, names[index:]
 		}
 	}
 	return lib, nil

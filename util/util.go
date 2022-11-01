@@ -2,7 +2,7 @@
  * @Author: HumXC Hum-XC@outlook.com
  * @Date: 2022-10-25
  * @LastEditors: HumXC Hum-XC@outlook.com
- * @LastEditTime: 2022-10-31
+ * @LastEditTime: 2022-11-01
  * @FilePath: /give-me-setu/util/util.go
  * @Description: 定义一些常用的无处安放的函数
  *
@@ -17,11 +17,6 @@ import (
 	"path"
 	"strings"
 )
-
-// 判断字符串是否以 target 开头
-func IsStartWith(str string, target string) bool {
-	return strings.Index(str, target) == 0
-}
 
 // 将字符串里的 old 替换成 args
 func Replace(str string, old string, args ...any) string {
@@ -51,5 +46,5 @@ func InitDir(path string) {
 // IsMIMEType("saada.png","image")
 func IsMIMEType(name, MIMEtype string) bool {
 	t := mime.TypeByExtension(path.Ext(name))
-	return IsStartWith(t, MIMEtype+"/")
+	return strings.HasPrefix(t, MIMEtype+"/")
 }

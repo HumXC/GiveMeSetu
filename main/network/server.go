@@ -6,6 +6,7 @@ import (
 	"give-me-setu/util"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path"
@@ -23,30 +24,36 @@ const (
 	FILE_ALREADY_EXIST
 	CLIENT_ERROR // 服务器的 client 访问外部时出现的错误
 	JSON_ERROR
+	FILE_NOT_FIND
+	FILE_OPEN_FAIL
 )
 
-type BaseResp struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
-
 type SetuServer struct {
-	lib storage.ImgLib
+	lib storage.Library
 }
 
 func (s *SetuServer) Run(port string) error {
 	return http.ListenAndServe(":"+port, nil)
 }
 
-func NewServer(rootLibDir string) *SetuServer {
+func NewServer(rootLibDir string) (*SetuServer, error) {
+	lib, err := storage.GetLib(rootLibDir)
+	if err != nil {
+		return nil, err
+	}
 	s := &SetuServer{
-		lib: *storage.GetLib(rootLibDir),
+		lib: *lib,
 	}
 	ws := new(restful.WebService)
 	ws.Route(ws.GET("/ping").To(ping))
-	ws.Route(ws.PUT("/library/{*}").To(s.libraryAdd))
+	// 对库内容的访问，main 代表根库
+	ws.Route(ws.PUT("/library/root/{*}").To(s.libraryRootPut))
+	ws.Route(ws.GET("/library/root/{*}").To(s.libraryRootGET))
+	ws.Route(ws.GET("/library/root").To(s.libraryRootGET))
+	// 对库的管理，库的增删改查
+	ws.Route(ws.PUT("/library/{*}").To(s.library))
 	restful.Add(ws)
-	return s
+	return s, nil
 }
 
 func ping(r1 *restful.Request, r2 *restful.Response) {
@@ -54,36 +61,87 @@ func ping(r1 *restful.Request, r2 *restful.Response) {
 }
 
 // TODO: 编写测试
-func (s *SetuServer) libraryAdd(r1 *restful.Request, r2 *restful.Response) {
+// TODO: 删除图片
+func (s *SetuServer) libraryRootGET(r1 *restful.Request, r2 *restful.Response) {
+
 	resp := BaseResp{
 		Code:    0,
 		Message: "ok",
+		Result:  make([]string, 0),
+	}
+
+	args := strings.TrimPrefix(r1.Request.URL.Path, "/library/root")
+	lib, failName := s.lib.Go(args)
+	name := ""
+	extName := ""
+	switch len(failName) {
+	case 0:
+		// 返回所在库的所有条目（json）
+		resp.Result = make([]string, 0, len(lib.Setus))
+		for k := range lib.Setus {
+			resp.Result = append(resp.Result, k)
+		}
+		writeJson(r2, &resp)
+		return
+	case 1:
+		name = failName[0]
+		extName = path.Ext(name)
+		if _, ok := lib.Setus[name]; !ok {
+			resp.Code = FILE_NOT_FIND
+			resp.Message = "Can not find file: " + name
+			writeJson(r2, &resp)
+			return
+		}
+		setu, err := lib.GetFile(name)
+		if err != nil {
+			resp.Code = FILE_OPEN_FAIL
+			resp.Message = "Can not open file: " + name
+			log.Panic(resp.Message, err)
+			writeJson(r2, &resp)
+			return
+		}
+		defer setu.Close()
+		io.Copy(r2, setu)
+		r2.Header().Set("Content-Type", mime.TypeByExtension(extName))
+		return
+	default:
+		resp.Code = LIB_NOTFOUND
+		resp.Message = "Can not find lib: " + failName[0]
+		log.Println(resp.Message)
+		return
+	}
+}
+
+func (s *SetuServer) libraryRootPut(r1 *restful.Request, r2 *restful.Response) {
+	resp := BaseResp{
+		Code:    0,
+		Message: "ok",
+		Result:  make([]string, 0),
 	}
 	defer writeJson(r2, &resp)
 
-	libName := strings.TrimPrefix(r1.Request.URL.Path, "/library/")
+	args := strings.TrimPrefix(r1.Request.URL.Path, "/library/root")
 
 	// 文件前缀
 	name := ""
 	// 文件后缀
 	extName := ""
 
-	lib, failName := s.lib.Go(libName)
-	if failName != nil {
-		switch len(failName) {
-		case 0:
-			resp.Code = OTHER_ERROR
-			resp.Message = "Must set a [name] after [lib]"
-			return
-		case 1:
-			name = failName[0]
-			extName = path.Ext(name)
-		default:
-			resp.Code = LIB_NOTFOUND
-			resp.Message = "Can not find lib: " + failName[0]
-			log.Println(resp.Message)
-			return
-		}
+	lib, failName := s.lib.Go(args)
+
+	switch len(failName) {
+	case 0:
+		resp.Code = OTHER_ERROR
+		resp.Message = "Must set a [name] after [main]"
+		return
+	case 1:
+		name = failName[0]
+		extName = path.Ext(name)
+	default:
+		resp.Code = LIB_NOTFOUND
+		resp.Message = "Can not find lib: " + failName[0]
+		log.Println(resp.Message)
+		return
 	}
 
 	// 网络图片的 url（如果有）
@@ -164,13 +222,17 @@ func (s *SetuServer) libraryAdd(r1 *restful.Request, r2 *restful.Response) {
 	}
 
 	// 添加图像到库
-	err = lib.Add(file.Name(), name+extName)
+	_, err = lib.Add(file.Name(), extName)
 	if err != nil {
 		resp.Code = OTHER_ERROR
 		resp.Message = "Failed to add image into library"
 	}
+
 }
 
+func (s *SetuServer) library(r1 *restful.Request, r2 *restful.Response) {
+
+}
 func writeJson(w http.ResponseWriter, obj any) {
 	j, err := json.Marshal(obj)
 	if err != nil {

@@ -2,8 +2,6 @@ package main
 
 import (
 	"give-me-setu/main/conf"
-	"give-me-setu/main/database"
-	"give-me-setu/main/network"
 	"give-me-setu/util"
 	"os"
 	"path"
@@ -29,11 +27,7 @@ func init() {
 	Cfg.DataDir = dataDir
 	Cfg.Library = path.Join(dataDir, "library")
 	util.InitDir(Cfg.Library)
-	_ = database.Get(Cfg)
-
 }
 func main() {
-
-	network.NewServer(Cfg.Library).Run("12345")
 
 }

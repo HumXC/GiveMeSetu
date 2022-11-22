@@ -6,7 +6,7 @@ import (
 	"github.com/howeyc/fsnotify"
 )
 
-func NewWatcher(lib *ImgLib) *LibWatcher {
+func NewWatcher(lib *Library) *LibWatcher {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		panic("The watcher failed to initialize: " + err.Error())
@@ -20,7 +20,7 @@ func NewWatcher(lib *ImgLib) *LibWatcher {
 
 type LibWatcher struct {
 	watcher *fsnotify.Watcher
-	Library *ImgLib
+	Library *Library
 }
 
 func (w *LibWatcher) Watch() {

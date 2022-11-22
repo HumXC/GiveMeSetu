@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// TODO: 库不应用 GetLib() 自动创建，应该读取数据库来创建对应的库
 type ImgLib struct {
 	ParentLib *ImgLib            // 上一级文件夹 (库)
 	SubLib    map[string]*ImgLib // 子文件夹 (库)
@@ -36,7 +37,7 @@ func (i *ImgLib) Add(srcName string, name string) error {
 	return nil
 }
 
-// 返回指定路径的 lib，第二个返回值是无法进入的路径
+// 返回指定路径的 lib，第二个返回值是无法进入的路径(如果有)
 func (i *ImgLib) Go(libName string) (*ImgLib, []string) {
 	names := make([]string, 0)
 	for _, v := range strings.Split(libName, "/") {
@@ -53,9 +54,10 @@ func (i *ImgLib) Go(libName string) (*ImgLib, []string) {
 			return lib, names[index:]
 		}
 	}
-	return lib, nil
+	return lib, []string{}
 }
 
+// Deprecated: 不应该自动创建
 func GetLib(rootLibDir string) *ImgLib {
 	return newLib(path.Dir(rootLibDir), path.Base(rootLibDir))
 }
@@ -65,6 +67,7 @@ func (i *ImgLib) GetFile(setuName string) (io.ReadCloser, error) {
 	return file, err
 }
 
+// 创建一个库，dir 是库所代表的文件夹
 func newLib(dir string, name string) *ImgLib {
 	fullName := path.Join(dir, name)
 	lib := ImgLib{

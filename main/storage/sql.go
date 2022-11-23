@@ -61,7 +61,7 @@ const (
 	ADD_SETU_SQLITE = `
 		INSERT INTO setu (
 			id, create_time, modify_time, title, origin, ext
-		) VALUES (?,?,?,?,?)
+		) VALUES (?,?,?,?,?,?)
 	`
 	DEL_SETU_SQLITE = `
 		DELETE FROM setu WHERE id=?

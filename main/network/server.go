@@ -36,8 +36,8 @@ func (s *SetuServer) Run(port string) error {
 	return http.ListenAndServe(":"+port, nil)
 }
 
-func NewServer(rootLibDir string) (*SetuServer, error) {
-	lib, err := storage.GetLib(rootLibDir)
+func NewServer(LibraryDir string) (*SetuServer, error) {
+	lib, err := storage.GetLib(LibraryDir)
 	if err != nil {
 		return nil, err
 	}
@@ -46,10 +46,11 @@ func NewServer(rootLibDir string) (*SetuServer, error) {
 	}
 	ws := new(restful.WebService)
 	ws.Route(ws.GET("/ping").To(ping))
-	// 对库内容的访问，main 代表根库
+	// 对库内容的访问，root 代表根库
 	ws.Route(ws.PUT("/library/root/{*}").To(s.libraryRootPut))
 	ws.Route(ws.GET("/library/root/{*}").To(s.libraryRootGET))
 	ws.Route(ws.GET("/library/root").To(s.libraryRootGET))
+	ws.Route(ws.PUT("/library/root").To(s.libraryRootPut))
 	// 对库的管理，库的增删改查
 	ws.Route(ws.PUT("/library/{*}").To(s.library))
 	restful.Add(ws)
@@ -184,16 +185,16 @@ func (s *SetuServer) libraryRootPut(r1 *restful.Request, r2 *restful.Response) {
 	}
 
 	// 写入图片到缓存文件
-	file, err := os.CreateTemp("", "give-me-setu")
+	temp, err := os.CreateTemp("", "give-me-setu")
 	if err != nil {
 		resp.Code = OTHER_ERROR
 		resp.Message = "Failed to create temp: " + err.Error()
 		log.Printf(resp.Message)
 		return
 	}
-	defer file.Close()
-	defer os.Remove(path.Join(os.TempDir(), file.Name()))
-	_, err = io.Copy(file, img)
+	defer temp.Close()
+	defer os.Remove(path.Join(os.TempDir(), temp.Name()))
+	_, err = io.Copy(temp, img)
 	if err != nil {
 		log.Println(err)
 		resp.Code = OTHER_ERROR
@@ -222,12 +223,11 @@ func (s *SetuServer) libraryRootPut(r1 *restful.Request, r2 *restful.Response) {
 	}
 
 	// 添加图像到库
-	_, err = lib.Add(file.Name(), extName)
+	_, err = lib.Add(temp.Name())
 	if err != nil {
 		resp.Code = OTHER_ERROR
 		resp.Message = "Failed to add image into library"
 	}
-
 }
 
 func (s *SetuServer) library(r1 *restful.Request, r2 *restful.Response) {

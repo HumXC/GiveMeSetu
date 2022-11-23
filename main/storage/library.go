@@ -36,11 +36,8 @@ func (i *Library) Add(srcName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	_, err = io.Copy(f, src)
-	if err != nil {
-		return "", err
-	}
+	defer f.Close()
+	f.Write(buf)
 	i.Setus[sum] = nil
 	return sum, nil
 }

@@ -14,6 +14,7 @@ func clear() {
 func TestMain(m *testing.M) {
 	clear()
 	defer clear()
+	m.Run()
 }
 
 var dataDir string = "../../test/storage"

@@ -71,7 +71,7 @@ func TestLibrary(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	setu, err := lib.GetFile(gotSum + ".png")
+	setu, err := lib.GetFile(gotSum)
 	if err != nil {
 		t.Fatal(err)
 	}

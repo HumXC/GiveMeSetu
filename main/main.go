@@ -2,6 +2,7 @@ package main
 
 import (
 	"give-me-setu/main/conf"
+	"give-me-setu/main/network"
 	"give-me-setu/util"
 	"os"
 	"path"
@@ -29,5 +30,12 @@ func init() {
 	util.InitDir(Cfg.Library)
 }
 func main() {
-
+	s, err := network.NewServer(Cfg.Library)
+	if err != nil {
+		panic(err)
+	}
+	err = s.Run("12345")
+	if err != nil {
+		panic(err)
+	}
 }

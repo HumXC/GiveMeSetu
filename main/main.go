@@ -1,8 +1,8 @@
 package main
 
 import (
-	"give-me-setu/main/conf"
-	"give-me-setu/main/network"
+	"give-me-setu/conf"
+	"give-me-setu/network"
 	"give-me-setu/util"
 	"os"
 	"path"

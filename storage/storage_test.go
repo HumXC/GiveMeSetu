@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"give-me-setu/main/conf"
+	"give-me-setu/conf"
 	"os"
 	"path"
 	"testing"
@@ -17,7 +17,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-var dataDir string = "../../test/storage"
+var dataDir string = "../test/storage"
 var testCfg conf.Config = conf.Config{
 	DataDir: dataDir,
 	Library: path.Join(dataDir, "root-library"),

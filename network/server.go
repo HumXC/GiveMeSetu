@@ -2,7 +2,7 @@ package network
 
 import (
 	"encoding/json"
-	"give-me-setu/main/storage"
+	"give-me-setu/storage"
 	"give-me-setu/util"
 	"io"
 	"log"

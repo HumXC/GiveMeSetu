@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"give-me-setu/main/conf"
+	"give-me-setu/conf"
 	"give-me-setu/util"
 	"path"
 	"strings"

@@ -15,7 +15,6 @@ func TestGetLib(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(rootDir)
 	dirs1 := []string{"1", "2", "3"}
 	dirs2 := []string{"11", "22"}
 	dirs3 := []string{"111"}
@@ -55,7 +54,6 @@ func TestLibrary(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(rootDir)
 	lib, err := GetLib(testCfg.Library)
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +67,7 @@ func TestLibrary(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	gotSum, err := lib.Add(f.Name(), ".png")
+	gotSum, err := lib.Add(f.Name())
 	if err != nil {
 		t.Fatal(err)
 	}

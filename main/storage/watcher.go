@@ -6,6 +6,7 @@ import (
 	"github.com/howeyc/fsnotify"
 )
 
+// 文件夹监听器，目前这个文件是多余的
 func NewWatcher(lib *Library) *LibWatcher {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {

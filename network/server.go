@@ -170,16 +170,15 @@ func (s *SetuServer) libraryRootPut(r1 *restful.Request, r2 *restful.Response) {
 	// 接收的图片
 	var img io.Reader
 	if imgUrl != "" {
-		webImg, err := http.DefaultClient.Get(imgUrl)
+		img, ct, err := GetFileFromURL(imgUrl)
+		contentType = ct
 		if err != nil {
 			resp.Code = CLIENT_ERROR
 			resp.Message = "Failed to fetch image from [" + imgUrl + "]: " + err.Error()
 			log.Println(resp.Message)
 			return
 		}
-		img = webImg.Body
-		contentType = webImg.Header.Get("Content-Type")
-		defer webImg.Body.Close()
+		defer img.Close()
 	} else {
 		img = r1.Request.Body
 	}
@@ -231,6 +230,14 @@ func (s *SetuServer) libraryRootPut(r1 *restful.Request, r2 *restful.Response) {
 }
 
 func (s *SetuServer) library(r1 *restful.Request, r2 *restful.Response) {
+
+}
+func GetFileFromURL(url string) (io.ReadCloser, string, error) {
+	r, err := http.DefaultClient.Get(url)
+	if err != nil {
+		return nil, "", err
+	}
+	return r.Body, r.Header.Get("Content-Type"), nil
 
 }
 func writeJson(w http.ResponseWriter, obj any) {

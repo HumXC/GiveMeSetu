@@ -2,6 +2,7 @@ package storage
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,8 +14,8 @@ type Library struct {
 	LibDB     *SetuDBs            // 数据库表操作
 	ParentLib *Library            // 上一级文件夹 (库)
 	SubLib    map[string]*Library // 子文件夹 (库)
-	Dir       string              // 库所在的位置
-	Name      string              // 文件夹的名称
+	Dir       string              // 库所的文件夹
+	Name      string              // 文件夹的名称 path.Base(Dir)
 	Setus     map[string]any      // 所包含的媒体
 }
 
@@ -42,15 +43,42 @@ func (i *Library) Add(srcName string) (string, error) {
 	return sum, nil
 }
 
-// 从 Setus 里删除记录，不会删除文件
-// 如果删除成功，返回 true
-// 如果返回 false 则表示 name 在 Setus 里不存在
-func (i *Library) Del(name string) bool {
-	_, ok := i.Setus[name]
+// 在当前库创建一个子库
+func (i *Library) CreateLib(name string) error {
+	if _, ok := i.SubLib[name]; ok {
+		return fmt.Errorf("folder \"%s\" is existed", name)
+	}
+	dir := path.Join(i.Dir, name)
+	err := os.Mkdir(dir, 0775)
+	if err != nil {
+		return err
+	}
+	lib, err := newLib(dir)
+	if err != nil {
+		return err
+	}
+	i.SubLib[name] = lib
+	return nil
+}
+
+func delInMap[T any | *Library](m map[string]T, name string) bool {
+	_, ok := m[name]
 	if ok {
-		delete(i.Setus, name)
+		delete(m, name)
 	}
 	return ok
+}
+
+// 从 Setus 里删除记录，不会删除文件，如果文件还在原来的地方，下一次启动仍然会将他重新扫描到
+// 如果删除成功，返回 true
+// 如果返回 false 则表示 name 在 Setus 里不存在
+func (i *Library) Rm(name string) bool {
+	return delInMap(i.Setus, name)
+}
+
+// 删除一个库，跟 Rm() 一样，只是从 SubLib 中删除记录，不会删除磁盘上的文件
+func (i *Library) RmLib(name string) bool {
+	return delInMap(i.SubLib, name)
 }
 
 // 返回指定路径的 lib，第二个返回值是无法进入的路径(如果有)
@@ -74,25 +102,27 @@ func (i *Library) Go(libName string) (*Library, []string) {
 
 // 获取文件
 func (i *Library) GetFile(name string) (io.ReadCloser, error) {
+	if _, ok := i.Setus[name]; !ok {
+		return nil, errors.New("can not find setu: " + name)
+	}
 	file, err := os.OpenFile(path.Join(i.Dir, name), os.O_RDONLY, 0775)
 	return file, err
 }
 
 // 从根目录创建 Lib
 func GetLib(rootLibDir string) (*Library, error) {
-	return newLib(path.Dir(rootLibDir), path.Base(rootLibDir))
+	return newLib(rootLibDir)
 }
 
-// 创建一个库，dir 是库的文件夹
-func newLib(dir, name string) (*Library, error) {
-	fullName := path.Join(dir, name)
+// 为 dir 创建一个库实例
+func newLib(dir string) (*Library, error) {
 	lib := Library{
-		Dir:    fullName,
-		Name:   name,
+		Dir:    dir,
+		Name:   path.Base(dir),
 		SubLib: make(map[string]*Library, 0),
 		Setus:  make(map[string]any, 0),
 	}
-	entrys, err := os.ReadDir(fullName)
+	entrys, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +130,7 @@ func newLib(dir, name string) (*Library, error) {
 		n := f.Name()
 		if f.IsDir() {
 			// 创建子库
-			subLib, err := newLib(fullName, n)
+			subLib, err := newLib(path.Join(dir, n))
 			if err != nil {
 				return nil, err
 			}
